@@ -3,7 +3,7 @@ from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from config.settings import load_config
-from infrastructure.db.session import db  # este contiene db = SQLAlchemy()
+from infrastructure.db.session import db  
 
 def create_app():
     app = Flask(__name__)
@@ -13,14 +13,12 @@ def create_app():
 
     jwt = JWTManager(app)
 
-    # ✅ Esto permite usar un dict como identity en create_access_token
     @jwt.user_identity_loader
     def user_identity_lookup(user):
         return user
 
     db.init_app(app)
-    Migrate(app, db)  # ❗ Correcto: usa db no Base
-
+    Migrate(app, db)  
     from interfaces.api.auth_blueprint import auth_bp
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
 

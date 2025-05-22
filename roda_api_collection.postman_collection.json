@@ -1,0 +1,322 @@
+{
+  "info": {
+    "name": "Roda API Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth - Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/auth/login",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"usuario\": \"admin_user\", \"clave\": \"12345\"}"
+        }
+      }
+    },
+    {
+      "name": "eBikes - Listar",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/ebikes",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "ebikes"
+          ]
+        }
+      }
+    },
+    {
+      "name": "eBikes - Obtener con timeline",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/ebikes/timeline/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "ebikes",
+            "timeline",
+            "1"
+          ]
+        }
+      }
+    },
+    {
+      "name": "eBikes - Bloquear",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/ebikes/1/lock",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "ebikes",
+            "1",
+            "lock"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"motivo\": \"robo\"}"
+        }
+      }
+    },
+    {
+      "name": "eBikes - Desbloquear",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/ebikes/1/unlock",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "ebikes",
+            "1",
+            "unlock"
+          ]
+        }
+      }
+    },
+    {
+      "name": "eBikes - Registrar",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/ebikes/register",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "ebikes",
+            "register"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"serial\": \"SERIAL-XYZ\"}"
+        }
+      }
+    },
+    {
+      "name": "eBikes - Asignar due\u00f1o",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/ebikes/1/assign-owner",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "ebikes",
+            "1",
+            "assign-owner"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"owner_id\": 2}"
+        }
+      }
+    },
+    {
+      "name": "Usuarios - Registrar",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/users/register",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "register"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"username\": \"nuevo_cliente\", \"password\": \"12345\", \"role_id\": 3}"
+        }
+      }
+    },
+    {
+      "name": "Usuarios - Cambiar rol",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/users/2/role",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "2",
+            "role"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"role_id\": 2}"
+        }
+      }
+    },
+    {
+      "name": "Hooks - Reportar evento",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/hooks/events/immobilize",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "hooks",
+            "events",
+            "immobilize"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"ebike_id\": 1, \"motivo\": \"robo\"}"
+        }
+      }
+    },
+    {
+      "name": "Dispositivo - Simular bloqueo",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/device/lock",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "device",
+            "lock"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"ebike_id\": 1}"
+        }
+      }
+    }
+  ]
+}

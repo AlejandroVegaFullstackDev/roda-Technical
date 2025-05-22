@@ -19,13 +19,10 @@ depends_on = None
 def upgrade():
     conn = op.get_bind()
 
-    # la contraseña plana que quieres hashear:
     plain = b'12345'
-    # genera dos salts distintos para juan y maria
     hash_juan  = bcrypt.hashpw(plain, bcrypt.gensalt()).decode('utf-8')
     hash_maria = bcrypt.hashpw(plain, bcrypt.gensalt()).decode('utf-8')
 
-    # inserta los usuarios con los hashes
     conn.execute(text("""
         INSERT INTO usuarios (username, password_hash, role_id)
         VALUES

@@ -32,5 +32,5 @@ class User:
     id: Optional[int] = None
     username: str = ""
     password_hash: str = ""  
-    role: str = ""  # 👈 Este campo DEBE existir y estar correctamente indentado
+    role: str = ""  
     created_at: Optional[datetime] = None
