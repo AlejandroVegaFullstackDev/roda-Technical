@@ -4,7 +4,7 @@
 # para el microservicio “e-Bike Autolock” (Clean Architecture)
 # ────────────────────────────────────────────────────────────────
 # Ejecución (vía SSH o local):
-#   chmod +x init_structure.sh && ./init_structure.sh
+#   chmod +x project.sh && ./project.sh
 # ────────────────────────────────────────────────────────────────
 
 set -e

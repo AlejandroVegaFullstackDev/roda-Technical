@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  postgres-db:
+    image: postgres:15
+    container_name: roda_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: roda724
+      POSTGRES_DB: roda_db
+    volumes:
+      - ./roda_schema.sql:/docker-entrypoint-initdb.d/roda_schema.sql:ro
+    networks:
+      - roda-network
+
+networks:
+  roda-network:
+    driver: bridge
