@@ -5,15 +5,16 @@ from typing import Optional
 
 @dataclass
 class Bike:
-    id: int
     serial: str
-    owner_id: int
     estado_id: int
     novedad_id: int
     updated_at: datetime
-    owner_username: str
-    owner_role: str
-    owner_created_at: datetime
+
+    owner_id: Optional[int] = None
+    id: Optional[int] = None
+    owner_username: Optional[str] = None
+    owner_role: Optional[str] = None
+    owner_created_at: Optional[datetime] = None
 
 @dataclass
 class TimelineEntry:
@@ -28,9 +29,8 @@ class TimelineEntry:
 
 @dataclass
 class User:
-    id: int
-    username: str
-    role: str
-    created_at: datetime
-
-
+    id: Optional[int] = None
+    username: str = ""
+    password_base64: str = ""
+    role: str = ""  # 👈 Este campo DEBE existir y estar correctamente indentado
+    created_at: Optional[datetime] = None

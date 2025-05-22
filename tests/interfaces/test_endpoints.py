@@ -20,45 +20,45 @@ def test_login_success(client):
     assert res.status_code in (200, 401)
 
 def test_list_bikes_requires_auth(client):
-    res = client.get("/api/bikes/")
+    res = client.get("/api/ebikes")
     assert res.status_code == 401
 
 def test_list_bikes_with_auth(client):
     token = get_token(client)
     assert token is not None, "❌ No se pudo obtener token"
-    res = client.get("/api/bikes/", headers={"Authorization": f"Bearer {token}"})
+    res = client.get("/api/ebikes", headers={"Authorization": f"Bearer {token}"})
     assert res.status_code in (200, 403)
 
 def test_get_bike_requires_auth(client):
-    res = client.get("/api/bikes/1")
+    res = client.get("/api/ebikes/timeline/1")
     assert res.status_code == 401
 
 def test_get_bike_with_auth(client):
     token = get_token(client)
     assert token is not None, "❌ No se pudo obtener token"
-    res = client.get("/api/bikes/1", headers={"Authorization": f"Bearer {token}"})
+    res = client.get("/api/ebikes/timeline/1", headers={"Authorization": f"Bearer {token}"})
     assert res.status_code in (200, 403, 404)
 
 def test_lock_bike_requires_auth(client):
-    res = client.post("/api/bikes/1/lock", json={"motivo": "robo"})
+    res = client.post("/api/ebikes/1/lock", json={"motivo": "robo"})
     assert res.status_code == 401
 
 def test_lock_bike_with_auth(client):
     token = get_token(client)
     assert token is not None, "❌ No se pudo obtener token"
     res = client.post(
-        "/api/bikes/1/lock",
+        "/api/ebikes/1/lock",
         json={"motivo": "robo"},
         headers={"Authorization": f"Bearer {token}"}
     )
     assert res.status_code in (202, 403, 400, 404)
 
 def test_hook_evento_requires_auth(client):
-    res = client.post("/api/hooks/evento", json={"ebike_id": 1, "motivo": "robo"})
+    res = client.post("/api/hooks/events/immobilize", json={"ebike_id": 1, "motivo": "robo"})
     assert res.status_code == 401
 
 @patch("infrastructure.services.gps_client_http.requests.post")
-def test_hook_evento_with_auth(mock_post, client):  # <- orden corregido
+def test_hook_evento_with_auth(mock_post, client):
     mock_post.return_value.status_code = 200
     mock_post.return_value.json.return_value = {"success": True}
 
@@ -66,7 +66,7 @@ def test_hook_evento_with_auth(mock_post, client):  # <- orden corregido
     assert token is not None, "❌ No se pudo obtener token"
 
     res = client.post(
-        "/api/hooks/evento",
+        "/api/hooks/events/immobilize",
         json={"ebike_id": 1, "motivo": "robo"},
         headers={"Authorization": f"Bearer {token}"}
     )
@@ -78,14 +78,14 @@ def test_device_lock_simulation(client):
     assert res.json.get("success") is True
 
 def test_set_user_role_requires_auth(client):
-    res = client.post("/api/users/2/set-role", json={"role_id": 2})
+    res = client.post("/api/users/2/role", json={"role_id": 2})
     assert res.status_code == 401
 
 def test_set_user_role_with_auth(client):
     token = get_token(client)
     assert token is not None, "❌ No se pudo obtener token"
     res = client.post(
-        "/api/users/2/set-role",
+        "/api/users/2/role",
         json={"role_id": 2},
         headers={"Authorization": f"Bearer {token}"}
     )
@@ -95,18 +95,17 @@ def test_register_user(client):
     token = get_token(client)
     assert token is not None
     res = client.post(
-        "/api/register/user",
+        "/api/users/register",
         json={"username": "nuevo_cliente", "password": "12345", "role_id": 3},
         headers={"Authorization": f"Bearer {token}"}
     )
     assert res.status_code in (201, 403, 400)
 
-
 def test_register_ebike(client):
     token = get_token(client)
     assert token is not None
     res = client.post(
-        "/api/register/bike",
+        "/api/ebikes/register",
         json={"serial": "SERIAL-XYZ"},
         headers={"Authorization": f"Bearer {token}"}
     )
@@ -116,7 +115,7 @@ def test_assign_owner_to_bike(client):
     token = get_token(client)
     assert token is not None
     res = client.patch(
-        "/api/bikes/1/assign-owner",
+        "/api/ebikes/1/assign-owner",
         json={"owner_id": 2},
         headers={"Authorization": f"Bearer {token}"}
     )

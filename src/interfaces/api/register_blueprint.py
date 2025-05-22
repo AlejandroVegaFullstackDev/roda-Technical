@@ -30,12 +30,31 @@ def register_user():
 @roles_required("admin", "operador")
 def register_bike():
     data = request.get_json()
+    current_user = get_jwt_identity()
+    actor_id = current_user["id"]  
+
     repo = BikeRepository(SessionLocal())
     service = RegisterService(bike_repo=repo)
 
     try:
-        service.register_bike(data)
-        return jsonify({"msg": "Bicicleta registrada exitosamente"}), 201
+        bike = service.register_bike(data, actor_id) 
+
+        return jsonify({
+            "msg": "Bicicleta registrada exitosamente",
+            "bike": {
+                "id": bike.id,
+                "serial": bike.serial,
+                "estado_id": bike.estado_id,
+                "novedad_id": bike.novedad_id,
+                "updated_at": bike.updated_at.isoformat(),
+                "owner": {
+                    "id": bike.owner_id,
+                    "username": bike.owner_username,
+                    "role": bike.owner_role,
+                    "created_at": bike.owner_created_at.isoformat() if bike.owner_created_at else None
+                } if bike.owner_id else None
+            }
+        }), 201
     except Exception as e:
         return jsonify({"msg": str(e)}), 400
 

@@ -15,7 +15,7 @@ class BikeLocker:
         else:
             raise DomainError("Motivo no válido")
 
-        success = self.gps.lock_bike(bike.id)
+        success = self.gps.lock(bike.id)
         if not success:
             raise DomainError("Fallo al contactar dispositivo GPS")
 

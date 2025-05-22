@@ -20,7 +20,7 @@ class ImmobilizeBikeService:
             raise ValueError("La bicicleta ya está desbloqueada.")
 
         # Intentar desbloquear por GPS primero
-        response = self.gps_client.unlock(bike.serial)
+        response = self.gps_client.unlock(bike.id)
         if not response.get("success"):
             raise RuntimeError("No se pudo desbloquear la bici vía GPS")
 

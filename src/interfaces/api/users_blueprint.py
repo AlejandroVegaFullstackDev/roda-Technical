@@ -8,7 +8,7 @@ from usecases.change_user_role_service import ChangeUserRoleService
 
 users_bp = Blueprint("users", __name__)
 
-@users_bp.route("/users/<int:user_id>/role", methods=["POST"])
+@users_bp.route("/<int:user_id>/role", methods=["POST"])
 @jwt_required()
 @roles_required("admin")
 def set_user_role(user_id):

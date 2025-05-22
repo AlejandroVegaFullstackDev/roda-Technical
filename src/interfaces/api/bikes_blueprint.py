@@ -14,13 +14,24 @@ def list_bikes():
     db = SessionLocal()
     repo = BikeRepository(db)
     bikes = repo.list_all()
-    return jsonify([{
-        "id": b.id,
-        "serial": b.serial,
-        "estado_id": b.estado_id,
-        "novedad_id": b.novedad_id,
-        "updated_at": b.updated_at.isoformat()
-    } for b in bikes]), 200
+
+    return jsonify([
+        {
+            "id": b.id,
+            "serial": b.serial,
+            "estado_id": b.estado_id,
+            "novedad_id": b.novedad_id,
+            "updated_at": b.updated_at.isoformat(),
+            "owner": {
+                "id": b.owner_id,
+                "username": b.owner_username,
+                "role": b.owner_role,
+                "created_at": b.owner_created_at.isoformat() if b.owner_created_at else None
+            } if b.owner_id else None
+        }
+        for b in bikes
+    ]), 200
+
 
 @bikes_bp.route("/ebikes/timeline/<int:bike_id>", methods=["GET"])
 @jwt_required()

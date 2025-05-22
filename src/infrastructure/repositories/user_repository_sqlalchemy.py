@@ -1,4 +1,4 @@
-from infrastructure.db.models import Usuario
+from infrastructure.db.models import Usuario, Rol
 from sqlalchemy.orm import Session
 from domain.entities import User
 

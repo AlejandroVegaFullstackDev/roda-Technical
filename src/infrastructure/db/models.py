@@ -1,8 +1,7 @@
 from sqlalchemy.sql import func
 from flask_sqlalchemy import SQLAlchemy
 
-# Este objeto se debe inicializar en db/session.py o donde configures SQLAlchemy
-# y se debe importar en tu app para hacer db.init_app(app)
+
 db = SQLAlchemy()
 
 class Rol(db.Model):

@@ -13,8 +13,8 @@ class BikeRepository(AbstractBikeRepository):
     def list_all(self):
         bikes = (
             self.db.query(EBike)
-            .join(Usuario)
-            .join(Rol)
+            .outerjoin(Usuario, EBike.owner_id == Usuario.id)
+            .outerjoin(Rol, Usuario.role_id == Rol.id)
             .all()
         )
 
@@ -22,13 +22,13 @@ class BikeRepository(AbstractBikeRepository):
             Bike(
                 id=b.id,
                 serial=b.serial,
-                owner_id=b.owner.id,
+                owner_id=b.owner.id if b.owner else None,
                 estado_id=b.estado_id,
                 novedad_id=b.novedad_id,
                 updated_at=b.updated_at,
-                owner_username=b.owner.username,
-                owner_role=b.owner.rol.nombre,
-                owner_created_at=b.owner.created_at
+                owner_username=b.owner.username if b.owner else None,
+                owner_role=b.owner.rol.nombre if b.owner and b.owner.rol else None,
+                owner_created_at=b.owner.created_at if b.owner else None
             )
             for b in bikes
         ]
@@ -36,8 +36,8 @@ class BikeRepository(AbstractBikeRepository):
     def get_by_id(self, bike_id: int) -> Bike:
         result = (
             self.db.query(EBike, Usuario, Rol)
-            .join(Usuario, EBike.owner_id == Usuario.id)
-            .join(Rol, Usuario.role_id == Rol.id)
+            .outerjoin(Usuario, EBike.owner_id == Usuario.id)
+            .outerjoin(Rol, Usuario.role_id == Rol.id)
             .filter(EBike.id == bike_id)
             .first()
         )
@@ -53,10 +53,10 @@ class BikeRepository(AbstractBikeRepository):
             estado_id=ebike.estado_id,
             novedad_id=ebike.novedad_id,
             updated_at=ebike.updated_at,
-            owner_id=usuario.id,
-            owner_username=usuario.username,
-            owner_role=rol.nombre,
-            owner_created_at=usuario.created_at
+            owner_id=usuario.id if usuario else None,
+            owner_username=usuario.username if usuario else None,
+            owner_role=rol.nombre if rol else None,
+            owner_created_at=usuario.created_at if usuario else None
         )
 
     def get_timeline(self, bike_id: int):
@@ -69,22 +69,26 @@ class BikeRepository(AbstractBikeRepository):
             .outerjoin(Usuario, TimelineEBike.actor_id == Usuario.id)
             .outerjoin(Rol, Usuario.role_id == Rol.id)
             .filter(TimelineEBike.ebike_id == bike_id)
-            .order_by(TimelineEBike.change_ts.desc())
+            .order_by(TimelineEBike.change_ts.desc())  # Orden estricto por fecha
         )
 
-        return [
+        resultados = query.all()
+
+        timeline = [
             TimelineEntry(
                 estado_id=t.estado_id,
                 estado_nombre=t.estado.nombre,
                 estado_descripcion=t.estado.descripcion,
                 novedad_id=t.novedad_id,
                 novedad_nombre=t.novedad.nombre,
-                fecha=t.change_ts,
+                fecha=t.change_ts,  # Ya viene con precisión de microsegundos desde PostgreSQL
                 actor_username=actor_username,
                 actor_role=actor_role
             )
-            for t, actor_username, actor_role in query.all()
+            for t, actor_username, actor_role in resultados
         ]
+
+        return timeline  # Ya ordenado desde el query
 
     def update_state(self, bike: Bike, estado_id: int, novedad_id: int):
         b = self.db.query(EBike).filter(EBike.id == bike.id).first()
@@ -130,6 +134,33 @@ class BikeRepository(AbstractBikeRepository):
             updated_at=bike.updated_at,
             owner_id=bike.owner_id
         )
+
+    def add(self, bike: Bike, actor_id: int = None, comentario: Optional[str] = None) -> Bike:
+        db_bike = EBike(
+            serial=bike.serial,
+            owner_id=bike.owner_id,
+            estado_id=bike.estado_id,
+            novedad_id=bike.novedad_id
+        )
+        self.db.add(db_bike)
+        self.db.commit()
+        self.db.refresh(db_bike)
+
+        # ⬇ Insertar en timeline con actor y comentario
+        timeline_entry = TimelineEBike(
+            ebike_id=db_bike.id,
+            estado_id=db_bike.estado_id,
+            novedad_id=db_bike.novedad_id,
+            change_ts=datetime.utcnow(),
+            actor_id=actor_id,
+            comentario=comentario
+        )
+        self.db.add(timeline_entry)
+        self.db.commit()
+
+        return self.get_by_id(db_bike.id)
+
+
         
     def save_changes(self):
         self.db.commit()

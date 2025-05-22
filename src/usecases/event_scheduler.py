@@ -10,10 +10,9 @@ def revisar_morosos():
     gps = GPSHttpClient()
     service = ImmobilizeBikeService(repo, gps)
 
-    # Simulación: ebikes con estado "1" (disponible) y dueño con nombre "juan" están en mora
     bicis = repo.list_all()
     for bici in bicis:
-        if bici.estado_id == 1 and bici.owner.username == "juan":  # reemplaza por lógica real
+        if bici.estado_id == 1 and bici.owner.username == "juan":  
             try:
                 print(f"🔁 Bloqueando bici ID={bici.id} por mora (cron)")
                 service.lock_bike(bici, "mora")

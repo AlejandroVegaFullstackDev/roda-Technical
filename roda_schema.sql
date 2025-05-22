@@ -1,6 +1,6 @@
 -- 1. Base de datos (solo si aún no está creada)
-CREATE DATABASE roda_db;
-\c roda_db;
+-- CREATE DATABASE roda_db;
+-- \c roda_db;
 
 -- 2. Tabla de roles
 CREATE TABLE roles (
@@ -67,12 +67,19 @@ CREATE TABLE timeline_ebikes (
   comentario TEXT
 );
 
--- 10. Función de timeline + timestamp actualizado
+-- 10. Función actualizada que usa actor_id y comentario de la sesión
 CREATE OR REPLACE FUNCTION fn_actualizar_ebike() RETURNS trigger AS $$
+DECLARE
+  actor_id INT := current_setting('app.current_user_id', true)::INT;
+  comentario TEXT := current_setting('app.comentario', true);
 BEGIN
   NEW.updated_at = now();
-  INSERT INTO timeline_ebikes(ebike_id, estado_id, novedad_id, change_ts)
-    VALUES (NEW.id, NEW.estado_id, NEW.novedad_id, now());
+  INSERT INTO timeline_ebikes (
+    ebike_id, estado_id, novedad_id, change_ts, actor_id, comentario
+  )
+  VALUES (
+    NEW.id, NEW.estado_id, NEW.novedad_id, now(), actor_id, comentario
+  );
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
