@@ -1,3 +1,5 @@
+# src/interfaces/api/bikes.py
+
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
 from infrastructure.db import SessionLocal
@@ -69,19 +71,20 @@ def get_bike(bike_id):
         } for t in timeline]
     }), 200
 
+
 @bikes_bp.route("/ebikes/<int:bike_id>/lock", methods=["POST"])
 @jwt_required()
 @roles_required("admin", "operador")
 def lock_bike(bike_id):
     db = SessionLocal()
-    bike_repo = BikeRepository(db)
+    bike_repo  = BikeRepository(db)
     gps_client = GPSHttpClient()
-    bike = bike_repo.get_by_id(bike_id)
+    bike       = bike_repo.get_by_id(bike_id)
 
     if not bike:
         return jsonify({"msg": "Bicicleta no encontrada"}), 404
 
-    data = request.get_json()
+    data   = request.get_json() or {}
     motivo = data.get("motivo", "").lower()
 
     try:
@@ -92,19 +95,24 @@ def lock_bike(bike_id):
             "estado_id": updated.estado_id,
             "novedad_id": updated.novedad_id
         }), 202
+
     except ValueError:
+        # motivo inválido
         return jsonify({"msg": "Motivo inválido. Usa 'mora' o 'robo'"}), 400
+
     except RuntimeError as err:
-        return jsonify({"msg": str(err)}), 500
+        # errores de negocio (ya bloqueada, fallo GPS) devuelven 400
+        return jsonify({"msg": str(err)}), 400
+
 
 @bikes_bp.route("/ebikes/<int:bike_id>/unlock", methods=["POST"])
 @jwt_required()
 @roles_required("admin", "operador")
 def unlock_bike(bike_id):
     db = SessionLocal()
-    bike_repo = BikeRepository(db)
+    bike_repo  = BikeRepository(db)
     gps_client = GPSHttpClient()
-    bike = bike_repo.get_by_id(bike_id)
+    bike       = bike_repo.get_by_id(bike_id)
 
     if not bike:
         return jsonify({"msg": "Bicicleta no encontrada"}), 404
@@ -117,6 +125,11 @@ def unlock_bike(bike_id):
             "estado_id": updated.estado_id,
             "novedad_id": updated.novedad_id
         }), 200
-    except Exception as e:
-        return jsonify({"msg": f"Error al desbloquear: {str(e)}"}), 500
 
+    except ValueError as err:
+        # ya estaba desbloqueada
+        return jsonify({"msg": str(err)}), 400
+
+    except RuntimeError as err:
+        # fallo GPS u otro error de negocio
+        return jsonify({"msg": str(err)}), 400

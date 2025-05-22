@@ -27,6 +27,7 @@ def create_app():
 
     from interfaces.api.users_blueprint import users_bp
     app.register_blueprint(users_bp, url_prefix="/api/users")
+    
 
 
     from interfaces.api.register_blueprint import register_bp

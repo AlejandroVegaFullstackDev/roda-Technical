@@ -4,42 +4,51 @@ from typing import Optional
 from domain.entities import Bike, User
 import bcrypt
 
-
 class DomainError(Exception):
     """Error de dominio genérico."""
     pass
 
-
 class BikeLocker:
-    """
-    Servicio de bloqueo de bicis. Recibe un repositorio de bicis
-    y un cliente GPS (con método lock_bike).
-    """
     def __init__(self, bike_repo, gps_client):
         self.bike_repo = bike_repo
-        self.gps = gps_client
+        self.gps        = gps_client
 
-    def lock(self, bike: Bike, motivo: str) -> Bike:
-        if motivo_code == 2:        
-            estado_id = 2
-            novedad_id = 2
-        elif motivo_code == 3:     
-            estado_id = 3
-            novedad_id = 2
-        else:
-            raise DomainError("Motivo no válido")
+    def lock(self, bike, motivo: str) -> Bike:
+        motivo = (motivo or "").strip().lower()
+        # 1) Validar motivo
+        if motivo not in ("robo", "mora"):
+            raise ValueError("Motivo inválido. Usa 'robo' o 'mora'.")
+        # 2) Validar que no esté ya bloqueada
+        if bike.estado_id in (2, 3):
+            raise DomainError("La bicicleta ya está bloqueada.")
+        # 3) Invocar al GPS mock
+        resp = self.gps.lock(bike.id)
+        if not resp.get("success", False):
+            raise DomainError(f"Error de comunicación con GPS: {resp.get('message')}")
+        # 4) Mapear IDs según motivo
+        estado_id  = 2 if motivo == "robo" else 3
+        novedad_id = 2  # “No Disponible”
+        # 5) Actualizar en BD
+        return self.bike_repo.update_state(
+            bike,
+            estado_id=estado_id,
+            novedad_id=novedad_id
+        )
 
-        # Llama al GPS
-        success = self.gps.lock_bike(bike.id)
-        if not success:
-            raise DomainError("Fallo al contactar dispositivo GPS")
-
-        # Actualiza en BD y devuelve la entidad actualizada
-        updated = self.bike_repo.update_state(bike, estado_id, novedad_id)
-        if not updated:
-            raise DomainError("Bicicleta no encontrada al actualizar estado")
-        return updated
-
+    def unlock(self, bike) -> Bike:
+        # 1) Validar que esté bloqueada
+        if bike.estado_id == 1:
+            raise ValueError("La bicicleta ya está desbloqueada.")
+        # 2) Invocar al GPS mock
+        resp = self.gps.unlock(bike.id)
+        if not resp.get("success", False):
+            raise DomainError(f"Error de comunicación con GPS: {resp.get('message')}")
+        # 3) Estado “Disponible” / novedad “Disponible”
+        return self.bike_repo.update_state(
+            bike,
+            estado_id=1,
+            novedad_id=1
+        )
 
 class RoleManager:
     """
@@ -52,12 +61,10 @@ class RoleManager:
         user = self.user_repo.get_by_id(user_id)
         if not user:
             raise DomainError("Usuario no encontrado")
-
         updated = self.user_repo.update_role(user, role_id)
         if not updated:
             raise DomainError("Error al asignar rol al usuario")
         return updated
-
 
 class Authenticator:
     """
@@ -70,8 +77,7 @@ class Authenticator:
         user = self.user_repo.get_by_username(username)
         if not user:
             return None
-
+        # Comprueba el hash bcrypt almacenado en user.password_hash
         if not bcrypt.checkpw(password.encode("utf-8"), user.password_hash.encode("utf-8")):
             return None
-
         return user

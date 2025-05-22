@@ -46,12 +46,18 @@ def test_lock_bike_requires_auth(client):
 def test_lock_bike_with_auth(client):
     token = get_token(client)
     assert token is not None, "❌ No se pudo obtener token"
+
     res = client.post(
         "/api/ebikes/1/lock",
         json={"motivo": "robo"},
         headers={"Authorization": f"Bearer {token}"}
     )
+
+    print("STATUS:", res.status_code)
+    print("BODY:  ", res.get_json())
+
     assert res.status_code in (202, 403, 400, 404)
+
 
 
 def test_device_lock_simulation(client):

@@ -1,6 +1,5 @@
 -- 1. Base de datos (solo si aún no está creada)
--- CREATE DATABASE roda_db;
--- \c roda_db;
+--  CREATE DATABASE roda_db;
 
 -- 2. Habilitar la extensión pgcrypto para bcrypt
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
@@ -18,7 +17,6 @@ INSERT INTO roles (id, nombre) VALUES
 ON CONFLICT (id) DO NOTHING;
 
 -- 4. Usuarios
-DROP TABLE IF EXISTS usuarios;
 CREATE TABLE usuarios (
   id SERIAL PRIMARY KEY,
   username VARCHAR(50) UNIQUE NOT NULL,
@@ -34,7 +32,6 @@ INSERT INTO usuarios (username, password_hash, role_id) VALUES
 ON CONFLICT (username) DO NOTHING;
 
 -- 5. Estados
-DROP TABLE IF EXISTS estados;
 CREATE TABLE estados (
   id SERIAL PRIMARY KEY,
   nombre VARCHAR(50) UNIQUE NOT NULL,
@@ -48,7 +45,6 @@ INSERT INTO estados (id, nombre, descripcion) VALUES
 ON CONFLICT (id) DO NOTHING;
 
 -- 6. Novedades
-DROP TABLE IF EXISTS novedades;
 CREATE TABLE novedades (
   id SERIAL PRIMARY KEY,
   nombre VARCHAR(50) UNIQUE NOT NULL
@@ -60,7 +56,6 @@ INSERT INTO novedades (id, nombre) VALUES
 ON CONFLICT (id) DO NOTHING;
 
 -- 7. Relación novedades ↔ estados
-DROP TABLE IF EXISTS novedades_estados;
 CREATE TABLE novedades_estados (
   novedad_id INT NOT NULL REFERENCES novedades(id) ON DELETE CASCADE,
   estado_id  INT NOT NULL REFERENCES estados(id)  ON DELETE CASCADE,
@@ -83,7 +78,6 @@ SELECT
 FROM estados e;
 
 -- 9. eBikes
-DROP TABLE IF EXISTS ebikes;
 CREATE TABLE ebikes (
   id SERIAL PRIMARY KEY,
   serial     VARCHAR(100) UNIQUE NOT NULL,
@@ -94,7 +88,6 @@ CREATE TABLE ebikes (
 );
 
 -- 10. Timeline (ahora con actor y comentario)
-DROP TABLE IF EXISTS timeline_ebikes;
 CREATE TABLE timeline_ebikes (
   id         SERIAL PRIMARY KEY,
   ebike_id   INT NOT NULL REFERENCES ebikes(id) ON DELETE CASCADE,

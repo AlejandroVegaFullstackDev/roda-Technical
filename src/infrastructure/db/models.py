@@ -1,43 +1,42 @@
 from sqlalchemy.sql import func
 from flask_sqlalchemy import SQLAlchemy
 
-
 db = SQLAlchemy()
 
 class Rol(db.Model):
     __tablename__ = 'roles'
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(50), unique=True, nullable=False)
+    id       = db.Column(db.Integer, primary_key=True)
+    nombre   = db.Column(db.String(50), unique=True, nullable=False)
     usuarios = db.relationship("Usuario", back_populates="rol")
 
 class Usuario(db.Model):
     __tablename__ = 'usuarios'
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(50), unique=True, nullable=False)
-    password_hash = Column(String(128), nullable=False)
-    role_id = db.Column(db.Integer, db.ForeignKey('roles.id', ondelete="RESTRICT"), nullable=False)
-    created_at = db.Column(db.TIMESTAMP(timezone=True), server_default=func.now())
+    id            = db.Column(db.Integer, primary_key=True)
+    username      = db.Column(db.String(50), unique=True, nullable=False)
+    password_hash = db.Column(db.String(128), nullable=False)  # <-- usa db.Column/db.String
+    role_id       = db.Column(db.Integer, db.ForeignKey('roles.id', ondelete="RESTRICT"), nullable=False)
+    created_at    = db.Column(db.TIMESTAMP(timezone=True), server_default=func.now())
 
-    rol = db.relationship("Rol", back_populates="usuarios")
+    rol    = db.relationship("Rol", back_populates="usuarios")
     ebikes = db.relationship("EBike", back_populates="owner")
 
 class Estado(db.Model):
     __tablename__ = 'estados'
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(50), unique=True, nullable=False)
+    id          = db.Column(db.Integer, primary_key=True)
+    nombre      = db.Column(db.String(50), unique=True, nullable=False)
     descripcion = db.Column(db.Text, nullable=False)
 
 class Novedad(db.Model):
     __tablename__ = 'novedades'
-    id = db.Column(db.Integer, primary_key=True)
+    id     = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), unique=True, nullable=False)
 
 class EBike(db.Model):
     __tablename__ = 'ebikes'
-    id = db.Column(db.Integer, primary_key=True)
-    serial = db.Column(db.String(100), unique=True, nullable=False)
-    owner_id = db.Column(db.Integer, db.ForeignKey('usuarios.id', ondelete="CASCADE"), nullable=False)
-    estado_id = db.Column(db.Integer, db.ForeignKey('estados.id'), nullable=False)
+    id         = db.Column(db.Integer, primary_key=True)
+    serial     = db.Column(db.String(100), unique=True, nullable=False)
+    owner_id   = db.Column(db.Integer, db.ForeignKey('usuarios.id', ondelete="CASCADE"), nullable=True)
+    estado_id  = db.Column(db.Integer, db.ForeignKey('estados.id'), nullable=False)
     novedad_id = db.Column(db.Integer, db.ForeignKey('novedades.id'), nullable=False)
     updated_at = db.Column(db.TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
 
@@ -45,13 +44,13 @@ class EBike(db.Model):
 
 class TimelineEBike(db.Model):
     __tablename__ = 'timeline_ebikes'
-    id = db.Column(db.Integer, primary_key=True)
-    ebike_id = db.Column(db.Integer, db.ForeignKey('ebikes.id', ondelete="CASCADE"), nullable=False)
-    estado_id = db.Column(db.Integer, db.ForeignKey('estados.id'), nullable=False)
-    novedad_id = db.Column(db.Integer, db.ForeignKey('novedades.id'), nullable=False)
-    change_ts = db.Column(db.TIMESTAMP(timezone=True), nullable=False, server_default=func.now())
-    actor_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), nullable=True)
-    comentario = db.Column(db.Text, nullable=True)
+    id          = db.Column(db.Integer, primary_key=True)
+    ebike_id    = db.Column(db.Integer, db.ForeignKey('ebikes.id', ondelete="CASCADE"), nullable=False)
+    estado_id   = db.Column(db.Integer, db.ForeignKey('estados.id'), nullable=False)
+    novedad_id  = db.Column(db.Integer, db.ForeignKey('novedades.id'), nullable=False)
+    change_ts   = db.Column(db.TIMESTAMP(timezone=True), nullable=False, server_default=func.now())
+    actor_id    = db.Column(db.Integer, db.ForeignKey("usuarios.id"), nullable=True)
+    comentario  = db.Column(db.Text, nullable=True)
 
-    estado = db.relationship("Estado", lazy="joined")
+    estado  = db.relationship("Estado", lazy="joined")
     novedad = db.relationship("Novedad", lazy="joined")
