@@ -28,7 +28,7 @@ class UserRepository:
 
         nuevo_usuario = Usuario(
             username=user.username,
-            password_base64=user.password_base64,
+            password_hash=user.password_hash,
             role_id=rol.id
         )
         self.db.add(nuevo_usuario)

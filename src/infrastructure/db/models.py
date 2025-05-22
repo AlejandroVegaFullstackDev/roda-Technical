@@ -14,7 +14,7 @@ class Usuario(db.Model):
     __tablename__ = 'usuarios'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
-    password_base64 = db.Column(db.Text, nullable=False)
+    password_hash = Column(String(128), nullable=False)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id', ondelete="RESTRICT"), nullable=False)
     created_at = db.Column(db.TIMESTAMP(timezone=True), server_default=func.now())
 

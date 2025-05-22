@@ -1,5 +1,5 @@
 from domain.entities import User, Bike
-import base64
+import bcrypt
 from datetime import datetime
 
 class UserFactory:
@@ -22,11 +22,11 @@ class UserFactory:
         if not role_name:
             raise DomainError("El role_id proporcionado no existe")
 
-        password_b64 = base64.b64encode(password.encode("utf-8")).decode("utf-8")
+        password_hash = bcrypt.hashpw( password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
         return User(
             username=username,
-            password_base64=password_b64,
+            password_hash=password_hash,
             role=role_name
         )
 

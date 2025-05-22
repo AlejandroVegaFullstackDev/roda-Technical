@@ -28,14 +28,11 @@ def create_app():
     from interfaces.api.users_blueprint import users_bp
     app.register_blueprint(users_bp, url_prefix="/api/users")
 
-    from interfaces.api.events_blueprint import events_bp
-    app.register_blueprint(events_bp, url_prefix="/api/hooks")
 
     from interfaces.api.register_blueprint import register_bp
     app.register_blueprint(register_bp, url_prefix="/api")
 
-    from usecases.event_scheduler import iniciar_cron
-    iniciar_cron()
+
 
     return app
 

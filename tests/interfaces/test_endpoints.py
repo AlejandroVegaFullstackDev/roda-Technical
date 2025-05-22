@@ -53,24 +53,6 @@ def test_lock_bike_with_auth(client):
     )
     assert res.status_code in (202, 403, 400, 404)
 
-def test_hook_evento_requires_auth(client):
-    res = client.post("/api/hooks/events/immobilize", json={"ebike_id": 1, "motivo": "robo"})
-    assert res.status_code == 401
-
-@patch("infrastructure.services.gps_client_http.requests.post")
-def test_hook_evento_with_auth(mock_post, client):
-    mock_post.return_value.status_code = 200
-    mock_post.return_value.json.return_value = {"success": True}
-
-    token = get_token(client)
-    assert token is not None, "❌ No se pudo obtener token"
-
-    res = client.post(
-        "/api/hooks/events/immobilize",
-        json={"ebike_id": 1, "motivo": "robo"},
-        headers={"Authorization": f"Bearer {token}"}
-    )
-    assert res.status_code in (200, 403, 404)
 
 def test_device_lock_simulation(client):
     res = client.post("/api/device/lock", json={"ebike_id": 1})

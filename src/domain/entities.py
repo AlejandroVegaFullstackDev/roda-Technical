@@ -31,6 +31,6 @@ class TimelineEntry:
 class User:
     id: Optional[int] = None
     username: str = ""
-    password_base64: str = ""
+    password_hash: str = ""  
     role: str = ""  # 👈 Este campo DEBE existir y estar correctamente indentado
     created_at: Optional[datetime] = None
