@@ -10,8 +10,12 @@ class AuthService:
         if not user:
             return None
 
-        return create_access_token(identity={
-            "id": user.id,
-            "username": user.username,
-            "role": user.rol.nombre
-        })
+        # identity DEBE ser string → usamos el ID como string
+        # los demás datos se van en additional_claims
+        return create_access_token(
+            identity=str(user.id),
+            additional_claims={
+                "username": user.username,
+                "role": user.rol.nombre
+            }
+        )

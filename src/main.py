@@ -13,6 +13,11 @@ def create_app():
 
     jwt = JWTManager(app)
 
+    # ✅ Esto permite usar un dict como identity en create_access_token
+    @jwt.user_identity_loader
+    def user_identity_lookup(user):
+        return user
+
     db.init_app(app)
     Migrate(app, db)  # ❗ Correcto: usa db no Base
 
@@ -27,13 +32,9 @@ def create_app():
 
     from interfaces.api.users_blueprint import users_bp
     app.register_blueprint(users_bp, url_prefix="/api/users")
-    
-
 
     from interfaces.api.register_blueprint import register_bp
     app.register_blueprint(register_bp, url_prefix="/api")
-
-
 
     return app
 

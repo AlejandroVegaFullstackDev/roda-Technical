@@ -1,6 +1,6 @@
 # src/interfaces/api/register_blueprint.py
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from infrastructure.db import SessionLocal
 from infrastructure.repositories.user_repository_sqlalchemy import UserRepository
 from infrastructure.repositories.bike_repository_sqlalchemy import BikeRepository
@@ -14,12 +14,12 @@ register_bp = Blueprint("register", __name__)
 @roles_required("admin", "operador")
 def register_user():
     data = request.get_json()
-    current_user = get_jwt_identity()
+    actor_id = int(get_jwt_identity())
     repo = UserRepository(SessionLocal())
     service = RegisterService(user_repo=repo)
 
     try:
-        service.register_user(data, current_user)
+        service.register_user(data, actor_id)
         return jsonify({"msg": "Usuario registrado exitosamente"}), 201
     except Exception as e:
         return jsonify({"msg": str(e)}), 400
@@ -30,14 +30,13 @@ def register_user():
 @roles_required("admin", "operador")
 def register_bike():
     data = request.get_json()
-    current_user = get_jwt_identity()
-    actor_id = current_user["id"]  
+    actor_id = int(get_jwt_identity())
 
     repo = BikeRepository(SessionLocal())
     service = RegisterService(bike_repo=repo)
 
     try:
-        bike = service.register_bike(data, actor_id) 
+        bike = service.register_bike(data, actor_id)
 
         return jsonify({
             "msg": "Bicicleta registrada exitosamente",
@@ -66,14 +65,14 @@ def assign_bike_owner(bike_id):
     db = SessionLocal()
     data = request.get_json()
     owner_id = data.get("owner_id")
-    actor = get_jwt_identity()
+    actor_id = int(get_jwt_identity())
 
     if not owner_id:
         return jsonify({"msg": "Falta 'owner_id'"}), 400
 
     try:
         bike_repo = BikeRepository(db)
-        bike_repo.assign_owner(bike_id, owner_id, actor_id=actor["id"])
+        bike_repo.assign_owner(bike_id, owner_id, actor_id=actor_id)
 
         # 🔄 Recargar bici con joins actualizados
         bike = bike_repo.get_by_id(bike_id)

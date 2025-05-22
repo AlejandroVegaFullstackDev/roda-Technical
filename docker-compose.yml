@@ -12,6 +12,7 @@ services:
       POSTGRES_DB: roda_db
     volumes:
       - ./roda_schema.sql:/docker-entrypoint-initdb.d/roda_schema.sql:ro
+      - ./seed:/docker-entrypoint-initdb.d  
     networks:
       - roda-network
 
@@ -20,6 +21,9 @@ services:
     container_name: roda_backend
     ports:
       - "5000:5000"
+
+    env_file:
+    - .env
     environment:
       DB_USER: postgres
       DB_PASSWORD: roda724
